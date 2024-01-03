@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/POS_Semestralka.dir/main.cpp.o CMakeFiles/POS_Semestralka.dir/client.cpp.o CMakeFiles/POS_Semestralka.dir/server.cpp.o -o POS_Semestralka  -lpthread 

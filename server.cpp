@@ -48,63 +48,110 @@ int server(int argc, char *argv[])
     }
 
     //-------------------------------------------Main Kód---------------------------------
-    int sirka, vyska, pocetMravcov, typMravcov, pocetZM, typGenerovaniaPlohy, pocetChyb = 0, typCitania;
+
+    int sirka, vyska, pocetMravcov, typMravcov, pocetZM, typGenerovaniaPlohy, pocetChyb = 0, typGenerovaniaMapy;
+    int pocetCiernichPloch;
+    DAT data = {.typMravcov = typMravcov, .pocetMravcov = pocetMravcov, .vyska = vyska, .sirka = sirka} ;
 
     //---------Server sa opyta ci chce client vytvorit mapu alebo nacitat zo suboru
-    do {
-        PosielanieNaCLienta(" Vyber si moznost - \n 1.Vytvorit mapu: \n 2.Nacitat mapu zo suboru: \n ",n,newsockfd);
-        citaniePodmienkaServer = CitanieZClienta(buffer,n,newsockfd);
-        if (citaniePodmienkaServer == 1 || citaniePodmienkaServer == 2) {
-            break;
-        }
-    } while (true);
+    PosielanieNaCLienta(" Vyber si moznost - \n 1.Vytvorit mapu: \n 2.Nacitat mapu zo suboru: \n ",n,newsockfd);
+    typGenerovaniaPlohy = CitanieZClienta(buffer,n,newsockfd);
+    printf("Server typgenerovaniaPlochy %d \n", typGenerovaniaPlohy);
 
-    if (citaniePodmienkaServer == 1) {
+
+
+    if (typGenerovaniaPlohy == 1) {
         // Vyska
-        do {
-            PosielanieNaCLienta("Zadaj vysku mapy min 5: \n",n,newsockfd);
-            vyska = CitanieZClienta(buffer,n,newsockfd);
-            if (vyska >= 5) {
-                break;
-            }
-        } while (true);
+        PosielanieNaCLienta("Zadaj vysku mapy min 5: \n",n,newsockfd);
+        vyska = CitanieZClienta(buffer,n,newsockfd);
+        data.vyska = vyska;
+        printf("Server vyska je %d \n", vyska);
         //Sirka
-        do {
-            PosielanieNaCLienta("Zadaj sirku mapy min 5: \n",n,newsockfd);
-            sirka = CitanieZClienta(buffer,n,newsockfd);
-            if (vyska >= 5) {
-                break;
-            }
-        } while (true);
+
+        PosielanieNaCLienta("Zadaj sirku mapy min 5: \n",n,newsockfd);
+        sirka = CitanieZClienta(buffer,n,newsockfd);
+        data.sirka = sirka;
+        printf("Server sirka je %d \n", sirka);
 
         //--------------------------------------------Generovanie mapy
         PosielanieNaCLienta(" Vyber si moznost - \n 1.Nahodne cierne policka: \n 2.Rucne napisat cierne policka: \n ",n,newsockfd);
-        citaniePodmienkaServer = CitanieZClienta(buffer,n,newsockfd);
-        if (citaniePodmienkaServer == 1) {
+        typGenerovaniaMapy = CitanieZClienta(buffer,n,newsockfd);
+        printf("Server typgenerovaniaMapy %d \n ", typGenerovaniaMapy);
+
+        if (typGenerovaniaMapy == 1) {
             srand(time(0));
-            //----------Hracie pole
+
+            //----------Hracie pole Inicializacia
             int **pole = new int* [vyska];
             for (int i = 0; i < vyska; i++) {
                 pole[i] = new int [sirka];
             }
+                                                            // 0 CIERNA 1 BIELA
             for (int i = 0; i < vyska; ++i) {
                 for (int j = 0; j < sirka; ++j) {
-                    if ((rand() % RAND_MAX) < 0.5 ) {
-                        pole[i][j] = 0;
+                    if ((rand() % 2) == 0 ) {
+                        pole[i][j] = CIERNA;
                     } else {
-                        pole[i][j] = 1;
+                        pole[i][j] = BIELA;
                     }
                 }
             }
+
+            data.pole = pole;
+
+            //------Test vypis
+            for (int i = 0; i < sirka; ++i) {
+                for (int j = 0; j < vyska; ++j) {
+                    printf(" %d ", data.pole[i][j]);
+                }
+                printf(" \n ");
+            }
+
         } else {
-            //Urceni pocet ciernich policok
+            //----------------------------------------Urceni pocet ciernich policok
+            int **pole = new int* [vyska];
+            for (int i = 0; i < vyska; i++) {
+                pole[i] = new int [sirka];
+            }
+            // 0 CIERNA 1 BIELA  Cela mapa je biela
+            for (int i = 0; i < vyska; ++i) {
+                for (int j = 0; j < sirka; ++j) {
+                    pole[i][j] = BIELA;
+                }
+            }
+
+            PosielanieNaCLienta("Kolko ciernich ploch chces mat : \n",n,newsockfd);
+            pocetCiernichPloch = CitanieZClienta(buffer,n,newsockfd);
+
+            for (int i = 0; i < pocetCiernichPloch; ++i) {
+                int surX, surY;
+                PosielanieNaCLienta("Zadaj suradnicu X :", n, newsockfd);
+                surX = CitanieZClienta(buffer,n,newsockfd);
+                PosielanieNaCLienta("Zadaj suradnicu Y :", n, newsockfd);
+                surY = CitanieZClienta(buffer,n,newsockfd);
+                pole[surX][surY] = CIERNA;
+            }
+            data.pole = pole;
+
+            //------Test vypis
+            for (int i = 0; i < sirka; ++i) {
+                for (int j = 0; j < vyska; ++j) {
+                    printf(" %d ", data.pole[i][j]);
+                }
+                printf(" \n ");
+            }
 
         }
+
+
+
+
 
     } else {
         //TODO     Nacitanie mapy zo suboru
     }
 
+    /*
 
     //----------Server sa opyta na pocet mravcou a pyta sa to stale dokym client neda rozumne cislo
     do {
@@ -122,13 +169,13 @@ int server(int argc, char *argv[])
         }
     } while (true);
 
-    DAT data = {.typMravcov = typMravcov, .pocetMravcov = pocetMravcov, .vyska = vyska, .sirka = sirka} ;
+
     printf("Pocet mravcov : %d \n", data.pocetMravcov);
     printf("Typ mravcoc : %d \n", data.typMravcov);
     printf("Vyska : %d \n", data.vyska);
     printf("Pocet sirka : %d \n", data.sirka);
         //----------------------------------------Koniec MAIN-----------------------------------
-
+*/
     close(newsockfd);
     close(sockfd);
 

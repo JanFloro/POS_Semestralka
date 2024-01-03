@@ -31,6 +31,9 @@ typedef struct data {
     pthread_mutex_t* mutex;
 } DAT;
 
+const int CIERNA = 0;
+const int BIELA = 1;
+
 int server(int argc, char *argv[]);
 
 int CitanieZClienta(char buffer[256], int n, int newsockfd);

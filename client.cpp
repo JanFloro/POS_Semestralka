@@ -1,7 +1,5 @@
 #include "client.h"
-
 int hodnota;
-int kontrolaIf;
 
 int citaniePodmienkaClient;
 
@@ -77,51 +75,47 @@ int client(int argc, char *argv[])
         return 4;
     }
 
-
-    //NacitanieZoSuboru
+    //---------------------------Main kod-----------------------------------
     //----------Vytvorit mapu alebo nacitat mapu zo suboru
-    do {
-        CitanieZoServera(buffer,n,sockfd);
-        citaniePodmienkaClient = PosielanieNaServer(buffer,n,sockfd);
-        if (citaniePodmienkaClient == 1 || citaniePodmienkaClient == 2) {
-            break;
-        }
-    } while (true);
+    int typGenerovania;
+    int vyska, sirka;
+    int pocetCiernichPloch;
+    int surX, surY;
+
+    CitanieZoServera(buffer,n,sockfd);
+    typGenerovania = PosielanieNaServer(buffer,n,sockfd);
 
 
-    if (citaniePodmienkaClient == 1 ) {
+
+    if (typGenerovania == 1 ) {
        // Vyska
-        do {
-            CitanieZoServera(buffer,n,sockfd);
-            hodnota = PosielanieNaServer(buffer,n,sockfd);
-            if (hodnota >= 5) {
-                break;
-            }
-        } while (true);
-        //sirka
-        do {
-            CitanieZoServera(buffer,n,sockfd);
-            hodnota = PosielanieNaServer(buffer,n,sockfd);
-            if (hodnota >= 5) {
-                break;
-            }
-        } while (true);
+       CitanieZoServera(buffer,n,sockfd);
+       vyska = PosielanieNaServer(buffer,n,sockfd);
+
+       //sirka
+       CitanieZoServera(buffer,n,sockfd);
+       sirka = PosielanieNaServer(buffer,n,sockfd);
+
     }
 
     //---------------Generovanie mapy
-    do {
-        CitanieZoServera(buffer,n,sockfd);
-        hodnota = PosielanieNaServer(buffer,n,sockfd);
-        if (hodnota == 1 || hodnota == 2) {
-            break;
-        }
-    } while (true);
+    CitanieZoServera(buffer,n,sockfd);
+    hodnota = PosielanieNaServer(buffer,n,sockfd);
 
     if (hodnota == 2) {
+        //----------------Vlastne cierne policka
+        CitanieZoServera(buffer,n,sockfd);
+        pocetCiernichPloch = PosielanieNaServer(buffer,n,sockfd);
 
+        for (int i = 0; i < pocetCiernichPloch; ++i) {
+            CitanieZoServera(buffer, n, sockfd);
+            surX = PosielanieNaServer(buffer,n,sockfd);
+            CitanieZoServera(buffer, n, sockfd);
+            surY = PosielanieNaServer(buffer,n,sockfd);
+        }
     }
 
-
+/*
     //----------Pocet mravcov
     do {
         CitanieZoServera(buffer,n,sockfd);
@@ -139,7 +133,7 @@ int client(int argc, char *argv[])
 
 
 
-
+*/
 
 
     close(sockfd);
