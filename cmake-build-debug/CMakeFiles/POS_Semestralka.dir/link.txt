@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/POS_Semestralka.dir/main.cpp.o -o POS_Semestralka 
