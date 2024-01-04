@@ -40,5 +40,7 @@ int CitanieZClienta(char buffer[256], int n, int newsockfd);
 
 void PosielanieNaCLienta(char sprava[512], int n, int newsockfd);
 
+void * MravecLogika (void* data);
+
 #endif //SEMESTRALNA_PRACA_SERVER_H
 

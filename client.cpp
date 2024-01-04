@@ -125,7 +125,6 @@ int client(int argc, char *argv[])
     CitanieZoServera(buffer,n,sockfd);
     pocetMravcov = PosielanieNaServer(buffer,n,sockfd);
 
-
     //---------Typ mravcov
     CitanieZoServera(buffer,n,sockfd);
     hodnota = PosielanieNaServer(buffer,n,sockfd);

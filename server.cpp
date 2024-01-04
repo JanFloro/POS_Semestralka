@@ -160,20 +160,18 @@ int server(int argc, char *argv[])
     //----------------------------------Inicializacia----------
     int **poleMravcov = new int* [vyska];
     for (int i = 0; i < vyska; i++) {
-        poleMravcov[i] = new int [sirka];
+        poleMravcov[i] = new int [4];
     }
-    //-----------------------------Naplnenie mapy mravcov-----------------
-    for (int i = 0; i < vyska; ++i) {
-        for (int j = 0; j < sirka; ++j) {
-            poleMravcov[i][j] = 9;
-        }
-    }
+
 
     if (rozhodnutie == 1) {
         int x, y;
         srand(time(0));
         for (int i = 0; i < pocetMravcov; ++i) {
-            poleMravcov[rand() % vyska] [rand() % sirka] = 2;
+            poleMravcov[i][0] = rand() % sirka; //Pozicia X
+            poleMravcov[i][1] = rand() % vyska; //Pozicia Y
+            poleMravcov[i][2] = rand() % 4; //Smer pohibu 0-3
+            poleMravcov[i][3] = 1; // 1 zivy mravec 2 mrtvy mravec
         }
 
         data.poleMravcov = poleMravcov;
@@ -185,17 +183,12 @@ int server(int argc, char *argv[])
             surX = CitanieZClienta(buffer,n,newsockfd);
             PosielanieNaCLienta("Zadaj suradnicu Y :", n, newsockfd);
             surY = CitanieZClienta(buffer,n,newsockfd);
-            poleMravcov[surX][surY] = 2;        //TODO  Mozno constanta na mnavca
+            poleMravcov[i][0] = surX; //Pozicia X
+            poleMravcov[i][1] = surY; //Pozicia Y
+            poleMravcov[i][2] = rand() % 4; //Smer pohybu 0-3
+            poleMravcov[i][3] = 1; // 1 zivy mravec 2 mrtvy mravec
         }
     }
-    //------------------------------Vykresli mapu mravcov----------------------
-    for (int i = 0; i < sirka; ++i) {
-        for (int j = 0; j < vyska; ++j) {
-            printf(" %d ", data.poleMravcov[i][j]);
-        }
-        printf(" \n ");
-    }
-
 
     printf("Pocet mravcov : %d \n", data.pocetMravcov);
     printf("Typ mravcoc : %d \n", data.typMravcov);
@@ -239,4 +232,8 @@ void PosielanieNaCLienta(char sprava[512], int n, int newsockfd) {
     if (n < 0) {
         perror("Error writing to socket");
     }
+}
+
+void * MravecLogika (void* data) {
+
 }
