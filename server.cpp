@@ -2,9 +2,6 @@
 
 using namespace std;
 
-
-int citaniePodmienkaServer;
-
 int server(int argc, char *argv[])
 {
     int sockfd, newsockfd;
@@ -190,22 +187,16 @@ int server(int argc, char *argv[])
         }
     }
 
-    printf("Pocet mravcov : %d \n", data.pocetMravcov);
-    printf("Typ mravcoc : %d \n", data.typMravcov);
-    printf("Vyska : %d \n", data.vyska);
-    printf("Pocet sirka : %d \n", data.sirka);
+    //-----------------------Zapnutie simulacie
+
+
+
+
+
     //----------------------------------------Koniec MAIN-----------------------------------
 
 
-    /*
-    //------Test vypis
-           for (int i = 0; i < sirka; ++i) {
-               for (int j = 0; j < vyska; ++j) {
-                   printf(" %d ", data.pole[i][j]);
-               }
-               printf(" \n ");
-           }
-    */
+
 
 
 
@@ -234,6 +225,63 @@ void PosielanieNaCLienta(char sprava[512], int n, int newsockfd) {
     }
 }
 
-void * MravecLogika (void* data) {
 
+
+void *Mravec(void *data) {
+    DAT *d = (DAT *) data;
+    //testt
+    for (int i = 0; i < d->sirka; ++i) {
+        for (int j = 0; j < d->vyska; ++j) {
+            if (d->pole[i][j] == 1) {
+                PosielanieNaCLienta(" 1 ",d->n,d->newsockfd);
+            } else {
+                PosielanieNaCLienta(" 0 ",d->n,d->newsockfd);
+            }
+
+        }
+        PosielanieNaCLienta(" \n ",d->n,d->newsockfd);
+    }
+
+
+
+
+    /*
+
+    while (1) {
+        //---------------------------Navrh----------------------
+        //----------------------------Logika pre kazdeho mravca--------------------
+        for (int i = 0; i < mravecData->pocetMravcov; ++i) {
+            int x = mravecData->poleMravcov[i][0];
+            int y = mravecData->poleMravcov[i][1];
+            int smer = mravecData->poleMravcov[i][2];
+
+            //--------------------------Posun mravca podla smetu
+            switch (smer) {
+                case 0:
+                    if (y > 0) {
+                        mravecData->poleMravcov[i][1]--; // Posun hore
+                    }
+                    break;
+                case 1:
+                    if (x < mravecData->sirka - 1) {
+                        mravecData->poleMravcov[i][0]++; // Posun doprava
+                    }
+                    break;
+                case 2:
+                    if (y < mravecData->vyska - 1) {
+                        mravecData->poleMravcov[i][1]++; // Posun dole
+                    }
+                    break;
+                case 3:
+                    if (x > 0) {
+                        mravecData->poleMravcov[i][0]--; // Posun dolava
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+
+        }
+    }*/
 }

@@ -21,4 +21,5 @@ int client(int argc, char *argv[]);
 int CitanieZoServera(char buffer[512],int n, int sockfd);
 int PosielanieNaServer(char buffer[256], int n, int sockfd);
 
+void* zobrazovanie(void * dat);
 #endif //SEMESTRALNA_PRACA_CLIENT_H

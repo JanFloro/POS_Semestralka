@@ -30,6 +30,15 @@ int PosielanieNaServer(char buffer[256], int n, int sockfd)
     return cislo;
 }
 
+void* zobrazovanie(void * dat)
+{
+    DATC* data = (DATC*) dat;
+    while (data->ckoniec ==nullptr) {
+        //sleep(2);
+        CitanieZoServera(data->cbuffer,data->cn,data->csockfd);
+    }
+}
+
 int client(int argc, char *argv[])
 {
     int sockfd, n;
@@ -142,6 +151,9 @@ int client(int argc, char *argv[])
             surY = PosielanieNaServer(buffer,n,sockfd);
         }
     }
+    //-------------------------------Simulacia------------------------------
+    printf("-----Spustam simulaciu-----");
+    //zobrazovanie();
 
 
 
