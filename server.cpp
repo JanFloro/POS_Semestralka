@@ -56,8 +56,6 @@ int server(int argc, char *argv[])
     //---------Server sa opyta ci chce client vytvorit mapu alebo nacitat zo suboru
     PosielanieNaCLienta(" Vyber si moznost - \n 1.Vytvorit mapu: \n 2.Nacitat mapu zo suboru: \n ",n,newsockfd);
     typGenerovaniaPlohy = CitanieZClienta(buffer,n,newsockfd);
-    printf("Server typgenerovaniaPlochy %d \n", typGenerovaniaPlohy);
-
 
 
     if (typGenerovaniaPlohy == 1) {
@@ -65,18 +63,15 @@ int server(int argc, char *argv[])
         PosielanieNaCLienta("Zadaj vysku mapy min 5: \n",n,newsockfd);
         vyska = CitanieZClienta(buffer,n,newsockfd);
         data.vyska = vyska;
-        printf("Server vyska je %d \n", vyska);
         //Sirka
 
         PosielanieNaCLienta("Zadaj sirku mapy min 5: \n",n,newsockfd);
         sirka = CitanieZClienta(buffer,n,newsockfd);
         data.sirka = sirka;
-        printf("Server sirka je %d \n", sirka);
 
         //--------------------------------------------Generovanie mapy
         PosielanieNaCLienta(" Vyber si moznost - \n 1.Nahodne cierne policka: \n 2.Rucne napisat cierne policka: \n ",n,newsockfd);
         typGenerovaniaMapy = CitanieZClienta(buffer,n,newsockfd);
-        printf("Server typgenerovaniaMapy %d \n ", typGenerovaniaMapy);
 
         if (typGenerovaniaMapy == 1) {
             srand(time(0));
@@ -98,14 +93,6 @@ int server(int argc, char *argv[])
             }
 
             data.pole = pole;
-
-            //------Test vypis
-            for (int i = 0; i < sirka; ++i) {
-                for (int j = 0; j < vyska; ++j) {
-                    printf(" %d ", data.pole[i][j]);
-                }
-                printf(" \n ");
-            }
 
         } else {
             //----------------------------------------Urceni pocet ciernich policok
@@ -132,50 +119,103 @@ int server(int argc, char *argv[])
                 pole[surX][surY] = CIERNA;
             }
             data.pole = pole;
-
-            //------Test vypis
-            for (int i = 0; i < sirka; ++i) {
-                for (int j = 0; j < vyska; ++j) {
-                    printf(" %d ", data.pole[i][j]);
-                }
-                printf(" \n ");
-            }
-
         }
 
+        //------------------------------Vykresli mapu
+        for (int i = 0; i < sirka; ++i) {
+            for (int j = 0; j < vyska; ++j) {
+                printf(" %d ", data.pole[i][j]);
+            }
+            printf(" \n ");
+        }
 
+        int ulozit;
+        PosielanieNaCLienta("Chces mapu ulozit: \n 1.ANO  \n 2.NIE  \n",n,newsockfd);
+        ulozit = CitanieZClienta(buffer,n,newsockfd);
 
-
+        if (ulozit == 1) {
+            //  --------------------------TODO Ulozenie mapy do suboru-----------------
+        }
 
     } else {
-        //TODO     Nacitanie mapy zo suboru
+        //TODO     -------------------------Nacitanie mapy zo suboru------------------------------
     }
 
-    /*
 
     //----------Server sa opyta na pocet mravcou a pyta sa to stale dokym client neda rozumne cislo
-    do {
-        PosielanieNaCLienta("Zadaj kolko mravcou chces mat na mape: \n",n,newsockfd);
-        pocetMravcov = CitanieZClienta(buffer,n,newsockfd);
-    } while (pocetMravcov == 0); // Ak client nazada rozumne cislo tak sa to opakuje
+    PosielanieNaCLienta("Zadaj kolko mravcou chces mat na mape: \n",n,newsockfd);
+    pocetMravcov = CitanieZClienta(buffer,n,newsockfd);
+    data.pocetMravcov = pocetMravcov;
 
 
-    //---------------------------------------------Typ mravcov
-    do {
-        PosielanieNaCLienta("Zadaj aky typ mravcou chces : \n 1.Priamich: \n 2.Inverznich: \n ",n,newsockfd);
-        typMravcov = CitanieZClienta(buffer,n,newsockfd);
-        if (typMravcov == 1 || typMravcov == 2) {
-            break;
+    //---------------------------------------------Typ mravcov--
+    PosielanieNaCLienta("Zadaj aky typ mravcou chces : \n 1.Priamich: \n 2.Inverznich: \n ",n,newsockfd);
+    typMravcov = CitanieZClienta(buffer,n,newsockfd);
+    data.typMravcov = typMravcov;
+
+    //-------------------------------------Pozicie mravcov-----------------------------
+    int rozhodnutie;
+    PosielanieNaCLienta("Pozicie mravcou : \n 1.Nahodna: \n 2.Vlastna: \n ",n,newsockfd);
+    rozhodnutie = CitanieZClienta(buffer,n,newsockfd);
+    //----------------------------------Inicializacia----------
+    int **poleMravcov = new int* [vyska];
+    for (int i = 0; i < vyska; i++) {
+        poleMravcov[i] = new int [sirka];
+    }
+    //-----------------------------Naplnenie mapy mravcov-----------------
+    for (int i = 0; i < vyska; ++i) {
+        for (int j = 0; j < sirka; ++j) {
+            poleMravcov[i][j] = 9;
         }
-    } while (true);
+    }
+
+    if (rozhodnutie == 1) {
+        int x, y;
+        srand(time(0));
+        for (int i = 0; i < pocetMravcov; ++i) {
+            poleMravcov[rand() % vyska] [rand() % sirka] = 2;
+        }
+
+        data.poleMravcov = poleMravcov;
+
+        } else {
+        for (int i = 0; i < pocetMravcov; ++i) {
+            int surX, surY;
+            PosielanieNaCLienta("Zadaj suradnicu X :", n, newsockfd);
+            surX = CitanieZClienta(buffer,n,newsockfd);
+            PosielanieNaCLienta("Zadaj suradnicu Y :", n, newsockfd);
+            surY = CitanieZClienta(buffer,n,newsockfd);
+            poleMravcov[surX][surY] = 2;        //TODO  Mozno constanta na mnavca
+        }
+    }
+    //------------------------------Vykresli mapu mravcov----------------------
+    for (int i = 0; i < sirka; ++i) {
+        for (int j = 0; j < vyska; ++j) {
+            printf(" %d ", data.poleMravcov[i][j]);
+        }
+        printf(" \n ");
+    }
 
 
     printf("Pocet mravcov : %d \n", data.pocetMravcov);
     printf("Typ mravcoc : %d \n", data.typMravcov);
     printf("Vyska : %d \n", data.vyska);
     printf("Pocet sirka : %d \n", data.sirka);
-        //----------------------------------------Koniec MAIN-----------------------------------
-*/
+    //----------------------------------------Koniec MAIN-----------------------------------
+
+
+    /*
+    //------Test vypis
+           for (int i = 0; i < sirka; ++i) {
+               for (int j = 0; j < vyska; ++j) {
+                   printf(" %d ", data.pole[i][j]);
+               }
+               printf(" \n ");
+           }
+    */
+
+
+
     close(newsockfd);
     close(sockfd);
 

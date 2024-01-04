@@ -115,25 +115,35 @@ int client(int argc, char *argv[])
         }
     }
 
-/*
+
+    //-----------------------------------Ulozenie mapy------------------
+    CitanieZoServera(buffer,n,sockfd);
+    PosielanieNaServer(buffer,n,sockfd);
+
     //----------Pocet mravcov
-    do {
-        CitanieZoServera(buffer,n,sockfd);
-        citaniePodmienkaClient = PosielanieNaServer(buffer,n,sockfd);
-    } while (citaniePodmienkaClient == 0);
+    int pocetMravcov;
+    CitanieZoServera(buffer,n,sockfd);
+    pocetMravcov = PosielanieNaServer(buffer,n,sockfd);
+
 
     //---------Typ mravcov
-    do {
-        CitanieZoServera(buffer,n,sockfd);
-        hodnota = PosielanieNaServer(buffer,n,sockfd);
-        if (hodnota == 1 || hodnota == 2) {
-            break;
+    CitanieZoServera(buffer,n,sockfd);
+    hodnota = PosielanieNaServer(buffer,n,sockfd);
+
+    //-------------------------Pozicie mravcov--------------------------
+    int randPozMravc;
+    CitanieZoServera(buffer,n,sockfd);
+    randPozMravc = PosielanieNaServer(buffer,n,sockfd);
+    //--------------------------Rucne suradnice mravcov-------------------
+    if (randPozMravc == 2) {
+        for (int i = 0; i < pocetMravcov; ++i) {
+            CitanieZoServera(buffer, n, sockfd);
+            surX = PosielanieNaServer(buffer,n,sockfd);
+            CitanieZoServera(buffer, n, sockfd);
+            surY = PosielanieNaServer(buffer,n,sockfd);
         }
-    } while (true);
+    }
 
-
-
-*/
 
 
     close(sockfd);

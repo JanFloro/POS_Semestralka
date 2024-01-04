@@ -22,7 +22,7 @@ typedef struct data {
     int vyska;
     int sirka;
     int **pole;
-    int **poziciaMravcov;
+    int **poleMravcov;
 
     int pocetZM;
     int cykl;
