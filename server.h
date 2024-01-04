@@ -15,32 +15,13 @@
 #include <iostream>
 #include <vector>
 
-typedef struct data {
-    int typMravcov;
-    int pocetMravcov;
-
-    int vyska;
-    int sirka;
-    int **pole;
-    int **poleMravcov;
-
-    int pocetZM;
-    int cykl;
-    int n;
-    int newsockfd;
-    pthread_mutex_t* mutex;
-} DAT;
-
-const int CIERNA = 0;
-const int BIELA = 1;
-
 int server(int argc, char *argv[]);
 
 int CitanieZClienta(char buffer[256], int n, int newsockfd);
 
 void PosielanieNaCLienta(char sprava[512], int n, int newsockfd);
 
-void * MravecLogika (void* data);
+
 
 #endif //SEMESTRALNA_PRACA_SERVER_H
 

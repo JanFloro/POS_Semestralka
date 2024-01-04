@@ -1,9 +1,12 @@
 #include "client.h"
+
+using namespace std;
+
 int hodnota;
 
-int citaniePodmienkaClient;
+void vykresli();
 
-int CitanieZoServera(char buffer[512],int n, int sockfd)
+int CitanieZoServera(char buffer[512], int n, int sockfd)
 {
     bzero(buffer,512);
     n = read(sockfd, buffer, 511);
@@ -30,14 +33,6 @@ int PosielanieNaServer(char buffer[256], int n, int sockfd)
     return cislo;
 }
 
-void* zobrazovanie(void * dat)
-{
-    DATC* data = (DATC*) dat;
-    while (data->ckoniec ==nullptr) {
-        //sleep(2);
-        CitanieZoServera(data->cbuffer,data->cn,data->csockfd);
-    }
-}
 
 int client(int argc, char *argv[])
 {
@@ -86,77 +81,174 @@ int client(int argc, char *argv[])
 
     //---------------------------Main kod-----------------------------------
     //----------Vytvorit mapu alebo nacitat mapu zo suboru
+
     int typGenerovania;
-    int vyska, sirka;
+    int nacitanie;
     int pocetCiernichPloch;
-    int surX, surY;
+    int surPolickaX, surPolickaY;
 
-    CitanieZoServera(buffer,n,sockfd);
-    typGenerovania = PosielanieNaServer(buffer,n,sockfd);
+    DATA d = {};
+
+    cout << "-----------\nLangtonov mravec\n-----------\n";
+    cout << "Chces nacitat mapu zo suboru: \n  1,ANO\n  2,NIE \n";
+    cin >> nacitanie;
+
+    if (nacitanie == 1 ) {
+        // TODO nacitanie zo servera
+    } else {
+        cout << "Paradicka tak si pome vytvorit mapu.\n";
+        cout << "Zadaj maximalnu vysku: \n";
+        cin >> d.vyska;
 
 
+        cout << "Zadaj maximalnu sirku: \n";
+        cin >> d.sirka;
 
-    if (typGenerovania == 1 ) {
-       // Vyska
-       CitanieZoServera(buffer,n,sockfd);
-       vyska = PosielanieNaServer(buffer,n,sockfd);
+        cout << "Vyber sposob vygenerovania mapy: \n  1,Nahodna\n  2,Vlastna \n";
+        cin >> typGenerovania;
 
-       //sirka
-       CitanieZoServera(buffer,n,sockfd);
-       sirka = PosielanieNaServer(buffer,n,sockfd);
+        //-----------------------------------Generovanie mapy--------------------------
 
-    }
+        //--------------------------------Inicializacia bool pola
+        d.pole = new bool*[d.vyska];
+        for (int i = 0; i < d.vyska; ++i) {
+            d.pole[i] = new bool[1];
+        }
+        //--------------------------------Nastavenie pola na false
+        for (int i = 0; i < d.vyska; ++i) {
+            for (int j = 0; j < d.sirka; ++j) {
+                d.pole[i][j] = false;
+            }
+        }
 
-    //---------------Generovanie mapy
-    CitanieZoServera(buffer,n,sockfd);
-    hodnota = PosielanieNaServer(buffer,n,sockfd);
 
-    if (hodnota == 2) {
-        //----------------Vlastne cierne policka
-        CitanieZoServera(buffer,n,sockfd);
-        pocetCiernichPloch = PosielanieNaServer(buffer,n,sockfd);
+        if (typGenerovania == 1) {
+            //--------------------Nahodne generovanie mapy
+            srand(time(0));
+            for (int i = 0; i < d.vyska; ++i) {
+                for (int j = 0; j < d.sirka; ++j) {
+                    if (rand() % 2 == 1) {
+                        d.pole[i][j] = true;
+                    }
+                }
+            }
+        } else {
+            //--------------------Vlastne generovanie mapy
 
-        for (int i = 0; i < pocetCiernichPloch; ++i) {
-            CitanieZoServera(buffer, n, sockfd);
-            surX = PosielanieNaServer(buffer,n,sockfd);
-            CitanieZoServera(buffer, n, sockfd);
-            surY = PosielanieNaServer(buffer,n,sockfd);
+            cout << "Kolko ciernich policok chces: \n";
+            cin >> pocetCiernichPloch;
+
+            for (int i = 0; i < pocetCiernichPloch; ++i) {
+                cout << "Zadaj suradnicu X: \n";
+                cin >> surPolickaX;
+                cout << "Zadaj suradnicu Y: \n";
+                cin >> surPolickaY;
+                d.pole[surPolickaX][surPolickaY] = true;
+            }
+        }
+        //-----------------------------------------Opytanie sa ci chce ulozit mapu
+        cout << "Vykreslenie mapy : \n";
+        vykresliMapu(&d);
+
+        cout << "Chces ulozit mapu do suboru : \n  1,ANO\n  2,NIE\n";
+        int ulozenie;
+        cin >> ulozenie;
+
+        if (ulozenie == 1) {
+            //--------------------TODO ulozenie mapy na server
         }
     }
 
+    //-------------------------------Mravci--------------------------------------------------------------------
 
-    //-----------------------------------Ulozenie mapy------------------
-    CitanieZoServera(buffer,n,sockfd);
-    PosielanieNaServer(buffer,n,sockfd);
+    //-------------------------Pocet mravcov na mape
+    cout << "Kolko mravcov chces mat na mape: \n";
+    cin >> d.pocetMravcov;
 
-    //----------Pocet mravcov
-    int pocetMravcov;
-    CitanieZoServera(buffer,n,sockfd);
-    pocetMravcov = PosielanieNaServer(buffer,n,sockfd);
+    d.poleMravcov= new int* [d.vyska];
+    for (int i = 0; i < d.sirka; i++) {
+        d.poleMravcov[i] = new int[4];
+    }
 
-    //---------Typ mravcov
-    CitanieZoServera(buffer,n,sockfd);
-    hodnota = PosielanieNaServer(buffer,n,sockfd);
 
-    //-------------------------Pozicie mravcov--------------------------
-    int randPozMravc;
-    CitanieZoServera(buffer,n,sockfd);
-    randPozMravc = PosielanieNaServer(buffer,n,sockfd);
-    //--------------------------Rucne suradnice mravcov-------------------
-    if (randPozMravc == 2) {
-        for (int i = 0; i < pocetMravcov; ++i) {
-            CitanieZoServera(buffer, n, sockfd);
-            surX = PosielanieNaServer(buffer,n,sockfd);
-            CitanieZoServera(buffer, n, sockfd);
-            surY = PosielanieNaServer(buffer,n,sockfd);
+    //------------------------Logika mravcov
+    cout << "Vyber si logiku mravcov:  \n  1,Priama\n  2,Inverzna\n";
+    cin >> d.typMravcov;
+
+    //-------------------------------Generovanie pozicie mravcov
+    cout << "Generovanie pozicie mravcov:  \n  1,Nahodne\n  2,Vlastne\n";
+    int genMravci;
+    cin >> genMravci;
+    //---------------------------Nahodne generovanie pozicie
+    if (genMravci == 1) {
+        srand(time(0));
+        for (int i = 0; i < d.pocetMravcov; ++i) {
+            d.poleMravcov[i][0] = rand() % d.vyska; //Pozicia X
+            d.poleMravcov[i][1] = rand() % d.sirka; //Pozicia Y
+            d.poleMravcov[i][2] = rand() % 4; //Smer pohibu 0-3
+            d.poleMravcov[i][3] = 1; // 1 zivy mravec 2 mrtvy mravec
+        }
+    } else {
+        for (int i = 0; i < d.pocetMravcov; ++i) {
+            int surX, surY;
+            cout << "Zadaj suradnicu X:  \n";
+            cin >> surX;
+            cout << "Zadaj suradnicu Y:  \n";
+            cin >> surY;
+            d.poleMravcov[i][0] = surX; //Pozicia X
+            d.poleMravcov[i][1] = surY; //Pozicia Y
+            d.poleMravcov[i][2] = rand() % 4; //Smer pohybu 0-3
+            d.poleMravcov[i][3] = 1; // 1 zivy mravec 2 mrtvy mravec
         }
     }
-    //-------------------------------Simulacia------------------------------
-    printf("-----Spustam simulaciu-----");
-    //zobrazovanie();
 
+    cout << "---------------------Mapa aj s mravcami -----------------\n";
+    vykresli(&d);
 
 
     close(sockfd);
     return 0;
+}
+
+void vykresliMapu(DATA* d) {
+
+
+    for (int i = 0; i < d->vyska; ++i) {
+        std::cout << '|';
+        for (int j = 0; j < d->sirka; ++j) {
+            char symbol = (d->pole[i][j] ? '#' : ' ');
+            std::cout << symbol;
+        }
+        std::cout << '|';
+        std::cout << '\n';
+    }
+    std::cout << '\n';
+}
+
+
+//[i][0] = Pozicia X
+//[i][1] = Pozicia Y
+//[i][2] = Smer pohibu 0-3
+//[i][3] = 1;
+
+void vykresli(DATA* d) {
+    for (int i = 0; i < d->vyska; ++i) {
+        cout << '|';
+        for (int j = 0; j < d->sirka; ++j) {
+            char symbol = (d->pole[i][j] ? '#' : ' ');
+            for (int k = 0; k < d->pocetMravcov; ++k) {
+                if (d->poleMravcov[k][0] == j && d->poleMravcov[k][1] == i) {
+                    symbol = '*'; //-----------------------Znacka mravca
+                    break;
+                }
+            }
+            cout << symbol;
+        }
+        cout << '|';
+        cout << '\n';
+    }
+    cout << '-' * d->vyska +"\n";
+    cout << '\n';
+
+
 }

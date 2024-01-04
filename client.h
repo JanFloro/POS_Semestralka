@@ -9,17 +9,30 @@
 #include <string.h>
 #include <unistd.h>
 #include <pthread.h>
+#include "iostream"
+#include <ctime>
+#include <cstdbool>
 
-typedef struct dataC {
-    char *ckoniec;
-    char *cbuffer;
-    int cn;
-    int csockfd;
-} DATC;
+typedef struct data {
+    int typMravcov;
+    int pocetMravcov;
+
+    int vyska;
+    int sirka;
+    bool **pole;
+    int **poleMravcov;
+
+    int pocetZM;
+    int cykl;
+    int n;
+    int newsockfd;
+    pthread_mutex_t* mutex;
+} DATA;
 
 int client(int argc, char *argv[]);
 int CitanieZoServera(char buffer[512],int n, int sockfd);
 int PosielanieNaServer(char buffer[256], int n, int sockfd);
 
-void* zobrazovanie(void * dat);
+void vykresliMapu (DATA* data);
+void vykresli(DATA* d);
 #endif //SEMESTRALNA_PRACA_CLIENT_H
