@@ -147,8 +147,8 @@ int client(int argc, char *argv[])
             }
         }
         //-----------------------------------------Opytanie sa ci chce ulozit mapu
-        cout << "Vykreslenie mapy : \n";
-        vykresliMapu(&d);
+        cout << "-------------------Vykreslenie mapy------------------- \n";
+        vykresli(&d);
 
         cout << "Chces ulozit mapu do suboru : \n  1,ANO\n  2,NIE\n";
         int ulozenie;
@@ -191,9 +191,9 @@ int client(int argc, char *argv[])
     } else {
         for (int i = 0; i < d.pocetMravcov; ++i) {
             int surX, surY;
-            cout << "Zadaj suradnicu X:  \n";
-            cin >> surX;
             cout << "Zadaj suradnicu Y:  \n";
+            cin >> surX;
+            cout << "Zadaj suradnicu X:  \n";
             cin >> surY;
             d.poleMravcov[i][0] = surX; //Pozicia X
             d.poleMravcov[i][1] = surY; //Pozicia Y
@@ -204,30 +204,21 @@ int client(int argc, char *argv[])
 
     cout << "---------------------Mapa aj s mravcami -----------------\n";
     vykresli(&d);
+    cout << "---------------------Simulacia sa pusta -----------------\n";
 
+    while (true){
+        posunMravcov(&d);
+        vykresli(&d);
+        sleep(3);
+    }
 
     close(sockfd);
     return 0;
 }
 
-void vykresliMapu(DATA* d) {
 
-
-    for (int i = 0; i < d->vyska; ++i) {
-        std::cout << '|';
-        for (int j = 0; j < d->sirka; ++j) {
-            char symbol = (d->pole[i][j] ? '#' : ' ');
-            std::cout << symbol;
-        }
-        std::cout << '|';
-        std::cout << '\n';
-    }
-    std::cout << '\n';
-}
-
-
-//[i][0] = Pozicia X
-//[i][1] = Pozicia Y
+//[i][0] = Pozicia Y
+//[i][1] = Pozicia X
 //[i][2] = Smer pohibu 0-3
 //[i][3] = 1;
 
@@ -237,7 +228,7 @@ void vykresli(DATA* d) {
         for (int j = 0; j < d->sirka; ++j) {
             char symbol = (d->pole[i][j] ? '#' : ' ');
             for (int k = 0; k < d->pocetMravcov; ++k) {
-                if (d->poleMravcov[k][0] == j && d->poleMravcov[k][1] == i) {
+                if (d->poleMravcov[k][1] == j && d->poleMravcov[k][0] == i) {
                     symbol = '*'; //-----------------------Znacka mravca
                     break;
                 }
@@ -247,8 +238,80 @@ void vykresli(DATA* d) {
         cout << '|';
         cout << '\n';
     }
-    cout << '-' * d->vyska +"\n";
     cout << '\n';
-
-
 }
+
+void posunMravcov(DATA* d) {
+    if (d->typMravcov == 1) {
+        //-------------------------------Priama logika
+        for (int i = 0; i < d->pocetMravcov; ++i) {
+            int& x = d->poleMravcov[i][1]; // -----------------------Suradnica X
+            int& y = d->poleMravcov[i][0]; // ---------------------Suradnica Y
+            int& smer = d->poleMravcov[i][2]; // --------------------Smer
+            int& stav = d->poleMravcov[i][3]; // ---------------------Stav mravenca zivy alebo mrtvy
+
+
+            if (stav == 1) {
+                bool farba = !d->pole[y][x]; //    Zistim aka je aktualna farba
+
+                // -----------------------------Zmeni smer na podla farby policka
+                smer = farba ? (smer + 1) % 4 : (smer + 3) % 4;
+
+
+
+                // ---------------------Zmeni aktualnu farbu na opacnu
+                d->pole[y][x] = !d->pole[y][x];
+
+                // -------------Posun mravca
+                switch (smer) {
+                    case 0:
+                        y = (y - 1 + d->vyska) % d->vyska; break; // HORE
+                    case 1:
+                        x = (x + 1) % d->sirka; break; // VPRAVO
+                    case 2:
+                        y = (y + 1) % d->vyska; break; // DOLE
+                    case 3:
+                        x = (x - 1 + d->sirka) % d->sirka; break; // VLAVO
+                    default: cout << "Chyba Upsss";
+                }
+            }
+        }
+    } else {
+        //------------------------------Inverzna logika
+        for (int i = 0; i < d->pocetMravcov; ++i) {
+            int& x = d->poleMravcov[i][1]; // -----------------------Suradnica X
+            int& y = d->poleMravcov[i][0]; // ---------------------Suradnica Y
+            int& smer = d->poleMravcov[i][2]; // --------------------Smer
+            int& stav = d->poleMravcov[i][3]; // ---------------------Stav mravenca zivy alebo mrtvy
+
+
+            if (stav == 1) {
+                bool farba = d->pole[y][x]; //    Zistim aka je aktualna farba
+
+                // -----------------------------Zmeni smer na podla farby policka
+                smer = farba ? (smer + 1) % 4 : (smer + 3) % 4;
+
+
+
+                // ---------------------Zmeni aktualnu farbu na opacnu
+                d->pole[y][x] = !d->pole[y][x];
+
+                // -------------Posun mravca
+                switch (smer) {
+                    case 0:
+                        y = (y - 1 + d->vyska) % d->vyska; break; // HORE
+                    case 1:
+                        x = (x + 1) % d->sirka; break; // VPRAVO
+                    case 2:
+                        y = (y + 1) % d->vyska; break; // DOLE
+                    case 3:
+                        x = (x - 1 + d->sirka) % d->sirka; break; // VLAVO
+                    default: cout << "Chyba Upsss";
+                }
+            }
+        }
+    }
+}
+
+
+
