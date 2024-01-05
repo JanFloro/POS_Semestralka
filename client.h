@@ -12,6 +12,7 @@
 #include "iostream"
 #include <ctime>
 #include <cstdbool>
+#include "limits"
 
 typedef struct data {
     int typMravcov;

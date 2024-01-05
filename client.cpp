@@ -81,7 +81,18 @@ int client(int argc, char *argv[])
 
     //---------------------------Main kod-----------------------------------
     //----------Vytvorit mapu alebo nacitat mapu zo suboru
+    /*
+     do {
+        printf("--->Vyberte spôsob pohybu mravcov po ploche\n-> 1) Priamo\n-> 2) Inverzne\n >>");
+        if (!(cin >> typeOfAntsMovement)) {
+            cout << "Nesprávny input!" << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+    } while (typeOfAntsMovement < 1 || typeOfAntsMovement > 2);
 
+
+     */
     int typGenerovania;
     int nacitanie;
     int pocetCiernichPloch;
@@ -89,23 +100,48 @@ int client(int argc, char *argv[])
 
     DATA d = {};
 
-    cout << "-----------\nLangtonov mravec\n-----------\n";
-    cout << "Chces nacitat mapu zo suboru: \n  1,ANO\n  2,NIE \n";
-    cin >> nacitanie;
+    cout << "----------------------\n    Langtonov mravec\n----------------------\n";
+    do {
+        cout << "Chces nacitat mapu zo suboru: \n  1,ANO\n  2,NIE \n";
+        if (!(cin >> nacitanie)) {
+            cout << "Nespravny input!" << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+    } while (nacitanie < 1 || nacitanie > 2);
+
 
     if (nacitanie == 1 ) {
-        // TODO nacitanie zo servera
+        // -----------------------------------------TODO nacitanie zo servera
     } else {
         cout << "Paradicka tak si pome vytvorit mapu.\n";
-        cout << "Zadaj maximalnu vysku: \n";
-        cin >> d.vyska;
+        do {
+            cout << "Zadaj maximalnu vysku [5-100]: \n";
+            if (!(cin >> d.vyska)) {
+                cout << "Nespravny input!" << endl;
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            }
+        } while (d.vyska < 5 || d.vyska > 100);
 
+        do {
+            cout << "Zadaj maximalnu sirku [5-100] : \n";
+            if (!(cin >> d.sirka)) {
+                cout << "Nespravny input!" << endl;
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            }
+        } while (d.sirka < 5 || d.sirka > 100);
 
-        cout << "Zadaj maximalnu sirku: \n";
-        cin >> d.sirka;
+        do {
+            cout << "Vyber sposob vygenerovania mapy: \n  1,Nahodna\n  2,Vlastna \n";
+            if (!(cin >> typGenerovania)) {
+                cout << "Nespravny input!" << endl;
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            }
+        } while (typGenerovania < 1 || typGenerovania > 2);
 
-        cout << "Vyber sposob vygenerovania mapy: \n  1,Nahodna\n  2,Vlastna \n";
-        cin >> typGenerovania;
 
         //-----------------------------------Generovanie mapy--------------------------
 
@@ -135,14 +171,36 @@ int client(int argc, char *argv[])
         } else {
             //--------------------Vlastne generovanie mapy
 
-            cout << "Kolko ciernich policok chces: \n";
-            cin >> pocetCiernichPloch;
+            do {
+                cout << "Kolko ciernich policok chces: \n";
+                if (!(cin >> pocetCiernichPloch)) {
+                    cout << "Nespravny input!" << endl;
+                    cin.clear();
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                }
+            } while (pocetCiernichPloch < 0  || pocetCiernichPloch > (d.vyska * d.sirka));
+
+
 
             for (int i = 0; i < pocetCiernichPloch; ++i) {
-                cout << "Zadaj suradnicu X: \n";
-                cin >> surPolickaX;
-                cout << "Zadaj suradnicu Y: \n";
-                cin >> surPolickaY;
+                do {
+                    cout << "Zadaj suradnicu Y: \n";
+                    if (!(cin >> surPolickaX)) {
+                        cout << "Nespravny input!" << endl;
+                        cin.clear();
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    }
+                } while (surPolickaX < 0 || surPolickaX > d.vyska);
+
+                do {
+                    cout << "Zadaj suradnicu X: \n";
+                    if (!(cin >> surPolickaY)) {
+                        cout << "Nespravny input!" << endl;
+                        cin.clear();
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    }
+                } while (surPolickaY < 0 || surPolickaY > d.sirka);
+
                 d.pole[surPolickaX][surPolickaY] = true;
             }
         }
@@ -150,9 +208,16 @@ int client(int argc, char *argv[])
         cout << "-------------------Vykreslenie mapy------------------- \n";
         vykresli(&d);
 
-        cout << "Chces ulozit mapu do suboru : \n  1,ANO\n  2,NIE\n";
         int ulozenie;
-        cin >> ulozenie;
+        do {
+            cout << "Chces ulozit mapu do suboru : \n  1,ANO\n  2,NIE\n";
+            if (!(cin >> ulozenie)) {
+                cout << "Nespravny input!" << endl;
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            }
+        } while (ulozenie < 1 || ulozenie > 2);
+
 
         if (ulozenie == 1) {
             //--------------------TODO ulozenie mapy na server
@@ -162,8 +227,15 @@ int client(int argc, char *argv[])
     //-------------------------------Mravci--------------------------------------------------------------------
 
     //-------------------------Pocet mravcov na mape
-    cout << "Kolko mravcov chces mat na mape: \n";
-    cin >> d.pocetMravcov;
+    do {
+        cout << "Kolko mravcov chces mat na mape: \n";
+        if (!(cin >> d.pocetMravcov)) {
+            cout << "Nespravny input!" << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+    } while (d.pocetMravcov < 0 || d.pocetMravcov > (d.sirka * d.vyska));
+
 
     d.poleMravcov= new int* [d.vyska];
     for (int i = 0; i < d.sirka; i++) {
@@ -172,13 +244,27 @@ int client(int argc, char *argv[])
 
 
     //------------------------Logika mravcov
-    cout << "Vyber si logiku mravcov:  \n  1,Priama\n  2,Inverzna\n";
-    cin >> d.typMravcov;
+    do {
+        cout << "Vyber si logiku mravcov:  \n  1,Priama\n  2,Inverzna\n";
+        if (!(cin >> d.typMravcov)) {
+            cout << "Nespravny input!" << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+    } while (d.typMravcov < 1 || d.typMravcov > 2);
+
 
     //-------------------------------Generovanie pozicie mravcov
-    cout << "Generovanie pozicie mravcov:  \n  1,Nahodne\n  2,Vlastne\n";
     int genMravci;
-    cin >> genMravci;
+    do {
+        cout << "Generovanie pozicie mravcov:  \n  1,Nahodne\n  2,Vlastne\n";
+        if (!(cin >> genMravci)) {
+            cout << "Nespravny input!" << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+    } while (genMravci < 1 || genMravci > 2);
+
     //---------------------------Nahodne generovanie pozicie
     if (genMravci == 1) {
         srand(time(0));
@@ -191,10 +277,25 @@ int client(int argc, char *argv[])
     } else {
         for (int i = 0; i < d.pocetMravcov; ++i) {
             int surX, surY;
-            cout << "Zadaj suradnicu Y:  \n";
-            cin >> surX;
-            cout << "Zadaj suradnicu X:  \n";
-            cin >> surY;
+            do {
+                cout << "Zadaj suradnicu Y:  \n";
+                if (!(cin >> surX)) {
+                    cout << "Nespravny input!" << endl;
+                    cin.clear();
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                }
+            } while (surX < 0 || surX > d.sirka);
+
+            do {
+                cout << "Zadaj suradnicu X:  \n";
+                if (!(cin >> surY)) {
+                    cout << "Nespravny input!" << endl;
+                    cin.clear();
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                }
+            } while (surY < 0 || surY > d.sirka);
+
+
             d.poleMravcov[i][0] = surX; //Pozicia X
             d.poleMravcov[i][1] = surY; //Pozicia Y
             d.poleMravcov[i][2] = rand() % 4; //Smer pohybu 0-3
@@ -229,7 +330,7 @@ void vykresli(DATA* d) {
             char symbol = (d->pole[i][j] ? '#' : ' ');
             for (int k = 0; k < d->pocetMravcov; ++k) {
                 if (d->poleMravcov[k][1] == j && d->poleMravcov[k][0] == i) {
-                    symbol = '*'; //-----------------------Znacka mravca
+                    symbol = '@'; //-----------------------Znacka mravca
                     break;
                 }
             }
@@ -242,75 +343,57 @@ void vykresli(DATA* d) {
 }
 
 void posunMravcov(DATA* d) {
-    if (d->typMravcov == 1) {
-        //-------------------------------Priama logika
-        for (int i = 0; i < d->pocetMravcov; ++i) {
-            int& x = d->poleMravcov[i][1]; // -----------------------Suradnica X
-            int& y = d->poleMravcov[i][0]; // ---------------------Suradnica Y
-            int& smer = d->poleMravcov[i][2]; // --------------------Smer
-            int& stav = d->poleMravcov[i][3]; // ---------------------Stav mravenca zivy alebo mrtvy
+
+    for (int i = 0; i < d->pocetMravcov; ++i) {
+        int &x = d->poleMravcov[i][1]; // -----------------------Suradnica X
+        int &y = d->poleMravcov[i][0]; // ---------------------Suradnica Y
+        int &smer = d->poleMravcov[i][2]; // --------------------Smer
+        int &stav = d->poleMravcov[i][3]; // ---------------------Stav mravenca zivy alebo mrtvy
 
 
-            if (stav == 1) {
-                bool farba = !d->pole[y][x]; //    Zistim aka je aktualna farba
+        if (stav == 1) {
+            bool farba = d->pole[y][x]; //    Zistim aka je aktualna farba
 
-                // -----------------------------Zmeni smer na podla farby policka
-                smer = farba ? (smer + 1) % 4 : (smer + 3) % 4;
+            // -----------------------------Zmeni smer na podla farby policka
+            smer = farba ? (smer + 1) % 4 : (smer + 3) % 4;
 
 
 
-                // ---------------------Zmeni aktualnu farbu na opacnu
-                d->pole[y][x] = !d->pole[y][x];
+            // ---------------------Zmeni aktualnu farbu na opacnu
+            d->pole[y][x] = !d->pole[y][x];
+        }
 
-                // -------------Posun mravca
-                switch (smer) {
-                    case 0:
-                        y = (y - 1 + d->vyska) % d->vyska; break; // HORE
-                    case 1:
-                        x = (x + 1) % d->sirka; break; // VPRAVO
-                    case 2:
-                        y = (y + 1) % d->vyska; break; // DOLE
-                    case 3:
-                        x = (x - 1 + d->sirka) % d->sirka; break; // VLAVO
-                    default: cout << "Chyba Upsss";
-                }
+        if (d->typMravcov == 1) {
+            //-----------------------Priama logika
+            switch (smer) {
+                case 0:
+                    y = (y - 1 + d->vyska) % d->vyska; break; // HORE
+                case 1:
+                    x = (x + 1) % d->sirka; break; // VPRAVO
+                case 2:
+                    y = (y + 1) % d->vyska; break; // DOLE
+                case 3:
+                    x = (x - 1 + d->sirka) % d->sirka; break; // VLAVO
+                default: cout << "Chyba Upsss";
+            }
+        } else {
+            //-------------------Inverzna logika
+            switch (smer) {
+                case 0:
+                    y = (y - 1 + d->vyska) % d->vyska; break; // HORE
+                case 3:
+                    x = (x + 1) % d->sirka; break; // VPRAVO
+                case 2:
+                    y = (y + 1) % d->vyska; break; // DOLE
+                case 1:
+                    x = (x - 1 + d->sirka) % d->sirka; break; // VLAVO
+                default: cout << "Chyba Upsss";
             }
         }
-    } else {
-        //------------------------------Inverzna logika
-        for (int i = 0; i < d->pocetMravcov; ++i) {
-            int& x = d->poleMravcov[i][1]; // -----------------------Suradnica X
-            int& y = d->poleMravcov[i][0]; // ---------------------Suradnica Y
-            int& smer = d->poleMravcov[i][2]; // --------------------Smer
-            int& stav = d->poleMravcov[i][3]; // ---------------------Stav mravenca zivy alebo mrtvy
 
 
-            if (stav == 1) {
-                bool farba = d->pole[y][x]; //    Zistim aka je aktualna farba
-
-                // -----------------------------Zmeni smer na podla farby policka
-                smer = farba ? (smer + 1) % 4 : (smer + 3) % 4;
-
-
-
-                // ---------------------Zmeni aktualnu farbu na opacnu
-                d->pole[y][x] = !d->pole[y][x];
-
-                // -------------Posun mravca
-                switch (smer) {
-                    case 0:
-                        y = (y - 1 + d->vyska) % d->vyska; break; // HORE
-                    case 1:
-                        x = (x + 1) % d->sirka; break; // VPRAVO
-                    case 2:
-                        y = (y + 1) % d->vyska; break; // DOLE
-                    case 3:
-                        x = (x - 1 + d->sirka) % d->sirka; break; // VLAVO
-                    default: cout << "Chyba Upsss";
-                }
-            }
-        }
     }
+
 }
 
 
