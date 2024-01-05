@@ -24,11 +24,11 @@ int main (int argc, char* argv[]){
     if(pocetPrvok <=3)
     {
         if(strcmp(argv[1], "client") == 0){
-            printf("Spuštam klienta\n");
+            printf("Zapinam klienta\n");
             client(argc,noveArgumenty);
         }
         else if(strcmp(argv[1], "server") == 0){
-            printf("Spuštam server\n");
+            printf("Zapinam server\n");
             server(argc, noveArgumenty);
         }
     } else

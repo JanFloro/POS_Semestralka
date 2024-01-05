@@ -23,20 +23,25 @@ typedef struct data {
     bool **pole;
     int **poleMravcov;
 
-    int pocetZM;
-    int cykl;
-    int n;
-    int newsockfd;
-    pthread_mutex_t* mutex;
+    int pocetZivich;
+    bool ukoncenie;
+    bool pauznutie;
+    pthread_mutex_t* mutexData;
 } DATA;
 
 int client(int argc, char *argv[]);
 int CitanieZoServera(char buffer[512],int n, int sockfd);
 int PosielanieNaServer(char buffer[256], int n, int sockfd);
 
-void posunMravcov (DATA* d);
-void vykresli(DATA* d);
-void vykresli2(DATA* d);
+void inicializaciaDat(void* d, int typMravcov, int pocetMravcov, int vyska, int sirka, bool **pole, int **poleMravcov, int pocetZivich);
+void odstranenieDat (void* d);
+
+void* hra (void *d);
+
+void posunMravcov (void * d);
+void zabiMravca (void* data);
+void vykresli(void* d);
+
 
 
 #endif //SEMESTRALNA_PRACA_CLIENT_H

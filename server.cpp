@@ -43,6 +43,22 @@ int server(int argc, char *argv[])
     }
 
     //-------------------------------------------Main Kód---------------------------------
+    while (true) {
+        // Citanie od clienta
+        int odpoved;
+        odpoved = CitanieZClienta(buffer, n, newsockfd);
+
+        if (odpoved == 1) {
+            //                  TODO Nacitranie mapy
+        }
+
+        if (odpoved == 3) {
+            PosielanieNaCLienta("Ulozenie na server: \n",n,newsockfd);
+            //                  TODO Ulozenie mapy
+
+        }
+
+    }
 
 
 
