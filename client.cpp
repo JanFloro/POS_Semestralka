@@ -108,17 +108,20 @@ int client(int argc, char *argv[])
 
     cout << "----------------------\n    Langtonov mravec\n----------------------\n";
     do {
-        cout << "Chces nacitat mapu zo servera: \n  1,ANO\n  2,NIE \n";
+        cout << "Chces nacitat mapu : \n  1,Server\n  2,Lokalny subor\n  3,NIE\n";
         if (!(cin >> nacitanie)) {
             cout << "Nespravny input!" << endl;
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
-    } while (nacitanie < 1 || nacitanie > 2);
+    } while (nacitanie < 1 || nacitanie > 3);
 
 
     if (nacitanie == 1 ) {
         // -----------------------------------------TODO nacitanie zo servera
+    } else if (nacitanie == 2 ) {
+        // -----------------------------------------TODO nacitanie zo suboru
+        //nacitanieMapyZoSuboru();
     } else {
         cout << "Paradicka tak si pome vytvorit mapu.\n";
         do {
@@ -233,19 +236,22 @@ int client(int argc, char *argv[])
 
         int ulozenie;
         do {
-            cout << "Chces ulozit mapu na server : \n  1,ANO\n  2,NIE\n";
+            cout << "Chces ulozit mapu : \n  1,Server\n  2,Lokalny subor\n  3,NIE\n";
             if (!(cin >> ulozenie)) {
                 cout << "Nespravny input!" << endl;
                 cin.clear();
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
             }
-        } while (ulozenie < 1 || ulozenie > 2);
+        } while (ulozenie < 1 || ulozenie > 3);
 
 
         if (ulozenie == 1) {
             //--------------------TODO ulozenie mapy na server
             CitanieZoServera(buffer,n,sockfd);
             PosielanieNaServer("3",n,sockfd);
+        }
+        if (ulozenie == 2) {
+            ulozenieMapyDoSuboru(pole,vyska,sirka);
         }
     }
 
@@ -486,6 +492,56 @@ void zabiMravca(void* data) {
 }
 
 
+void ulozenieMapyDoSuboru(bool** pole, int vyska, int sirka) {
+    ofstream outputFile("Mapa.txt");
+
+    if (!outputFile.is_open()) {
+        cerr << "Chyba otvorenia suboru: " << "Mapa.txt" << endl;
+        return;
+    }
+
+    outputFile << vyska << " " << sirka << endl;
+
+    for (int i = 0; i < vyska; ++i) {
+        for (int j = 0; j < sirka; ++j) {
+            outputFile << (pole[i][j] ? '#' : ' ');
+        }
+        outputFile << endl;
+    }
+
+    outputFile.close();
+    cout << "Mapa bola ulozena " << "Mapa.txt" << endl;
+}
+
+bool** nacitanieMapyZoSuboru(int& vyska, int& sirka) {
+    ifstream inputFile("Mapa.txt");
+
+    if (!inputFile.is_open()) {
+        cerr << "Neotvoril sa subor: " << "Mapa.txt" << endl;
+        return nullptr;
+    }
+
+    inputFile >> vyska >> sirka;
+
+    // Vytvori 2d pole
+    bool** pole = new bool*[vyska];
+    for (int i = 0; i < vyska; ++i) {
+        pole[i] = new bool[sirka];
+    }
+
+    for (int i = 0; i < vyska; ++i) {
+        for (int j = 0; j < sirka; ++j) {
+            char cellContent;
+            inputFile >> cellContent;
+            pole[i][j] = (cellContent == '#');
+        }
+    }
+
+    inputFile.close();
+    cout << "Mapa bola uspesne nacitana: " << "Mapa.txt" << endl;
+
+    return pole;
+}
 
 
 

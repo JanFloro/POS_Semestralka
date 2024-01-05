@@ -13,6 +13,7 @@
 #include <ctime>
 #include <cstdbool>
 #include "limits"
+#include <fstream>
 
 typedef struct data {
     int typMravcov;
@@ -37,6 +38,9 @@ void inicializaciaDat(void* d, int typMravcov, int pocetMravcov, int vyska, int 
 void odstranenieDat (void* d);
 
 void* hra (void *d);
+
+void ulozenieMapyDoSuboru(bool** pole, int vyska, int sirka);
+bool** nacitanieMapyZoSuboru(int& vyska, int& sirka);
 
 void posunMravcov (void * d);
 void zabiMravca (void* data);
