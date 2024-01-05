@@ -204,6 +204,7 @@ int client(int argc, char *argv[])
                 d.pole[surPolickaX][surPolickaY] = true;
             }
         }
+
         //-----------------------------------------Opytanie sa ci chce ulozit mapu
         cout << "-------------------Vykreslenie mapy------------------- \n";
         vykresli(&d);
@@ -310,6 +311,7 @@ int client(int argc, char *argv[])
     while (true){
         posunMravcov(&d);
         vykresli(&d);
+        //vykresli2(&d);
         sleep(3);
     }
 
@@ -324,13 +326,14 @@ int client(int argc, char *argv[])
 //[i][3] = 1;
 
 void vykresli(DATA* d) {
+    printf("------------------------\n");
     for (int i = 0; i < d->vyska; ++i) {
         cout << '|';
         for (int j = 0; j < d->sirka; ++j) {
             char symbol = (d->pole[i][j] ? '#' : ' ');
             for (int k = 0; k < d->pocetMravcov; ++k) {
                 if (d->poleMravcov[k][1] == j && d->poleMravcov[k][0] == i) {
-                    symbol = '@'; //-----------------------Znacka mravca
+                    symbol = 'X'; //-----------------------Znacka mravca
                     break;
                 }
             }
@@ -340,6 +343,32 @@ void vykresli(DATA* d) {
         cout << '\n';
     }
     cout << '\n';
+    printf("------------------------\n");
+}
+
+// ---------------Test graficke znazornenie
+void vykresli2(DATA* d) {
+    for (int i = 0; i < d->vyska; ++i) {
+        printf("|");
+        for (int j = 0; j < d->sirka; ++j) {
+
+            for (int k = 0; k < d->pocetMravcov; ++k) {
+                if (d->poleMravcov[k][1] == j && d->poleMravcov[k][0] == i) {
+                    cout << "\U0001F41C"; //-----------------------Znacka mravca
+                    break;
+                }
+            }
+            if (d->pole[i][j]){
+                cout << "⬛";
+            } else {
+                cout << "⬜";
+            }
+
+        }
+        printf("|\n");
+    }
+    printf("\n");
+
 }
 
 void posunMravcov(DATA* d) {

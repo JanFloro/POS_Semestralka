@@ -36,6 +36,7 @@ int PosielanieNaServer(char buffer[256], int n, int sockfd);
 
 void posunMravcov (DATA* d);
 void vykresli(DATA* d);
+void vykresli2(DATA* d);
 
 
 #endif //SEMESTRALNA_PRACA_CLIENT_H
