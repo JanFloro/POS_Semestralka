@@ -40,7 +40,6 @@ void odstranenieDat (void* d);
 void* hra (void *d);
 
 void ulozenieMapyDoSuboru(bool** pole, int vyska, int sirka);
-bool** nacitanieMapyZoSuboru();
 
 bool** nacitanieMapyZoSuboru1(int& vyska, int& sirka);
 
