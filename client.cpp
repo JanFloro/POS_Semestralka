@@ -400,7 +400,7 @@ void vykresli(void* data) {
             for (int k = 0; k < d->pocetMravcov; ++k) {
                 if (d->poleMravcov[k][3] == 1) {  //--------------Kontrola zi je zivy
                     if (d->poleMravcov[k][1] == j && d->poleMravcov[k][0] == i) {
-                        symbol = 'X'; //-----------------------Znacka mravca
+                        symbol = '*'; //-----------------------Znacka mravca
                         break;
                     }
                 }
