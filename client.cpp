@@ -121,7 +121,10 @@ int client(int argc, char *argv[])
         // -----------------------------------------TODO nacitanie zo servera
     } else if (nacitanie == 2 ) {
         // -----------------------------------------TODO nacitanie zo suboru
-        //nacitanieMapyZoSuboru();
+        nacitanieMapyZoSuboru();
+        //nacitanieMapyZoSuboru1(vyska,sirka);
+        printf("%d\n", vyska);
+        printf("%d\n", sirka);
     } else {
         cout << "Paradicka tak si pome vytvorit mapu.\n";
         do {
@@ -500,11 +503,12 @@ void ulozenieMapyDoSuboru(bool** pole, int vyska, int sirka) {
         return;
     }
 
-    outputFile << vyska << " " << sirka << endl;
+    outputFile << vyska << endl;
+    outputFile << sirka << endl;
 
     for (int i = 0; i < vyska; ++i) {
         for (int j = 0; j < sirka; ++j) {
-            outputFile << (pole[i][j] ? '#' : ' ');
+            outputFile << (pole[i][j] ? '1' : '0');
         }
         outputFile << endl;
     }
@@ -513,7 +517,8 @@ void ulozenieMapyDoSuboru(bool** pole, int vyska, int sirka) {
     cout << "Mapa bola ulozena " << "Mapa.txt" << endl;
 }
 
-bool** nacitanieMapyZoSuboru(int& vyska, int& sirka) {
+bool** nacitanieMapyZoSuboru() {
+    int vyska, sirka;
     ifstream inputFile("Mapa.txt");
 
     if (!inputFile.is_open()) {
@@ -521,7 +526,11 @@ bool** nacitanieMapyZoSuboru(int& vyska, int& sirka) {
         return nullptr;
     }
 
-    inputFile >> vyska >> sirka;
+    inputFile >> vyska;
+    //printf("%d\n", vy);
+    inputFile >> sirka;
+    //printf("%d\n", si);
+
 
     // Vytvori 2d pole
     bool** pole = new bool*[vyska];
@@ -533,8 +542,11 @@ bool** nacitanieMapyZoSuboru(int& vyska, int& sirka) {
         for (int j = 0; j < sirka; ++j) {
             char cellContent;
             inputFile >> cellContent;
-            pole[i][j] = (cellContent == '#');
+            cellContent -= 48;
+            pole[i][j] = (cellContent == '1');
+            //printf("%d", cellContent);
         }
+        printf("\n");
     }
 
     inputFile.close();
@@ -543,6 +555,41 @@ bool** nacitanieMapyZoSuboru(int& vyska, int& sirka) {
     return pole;
 }
 
+bool** nacitanieMapyZoSuboru1(int& vyska, int& sirka) {
+    ifstream inputFile("Mapa.txt");
 
+    if (!inputFile.is_open()) {
+        cerr << "Neotvoril sa subor: " << "Mapa.txt" << endl;
+        return nullptr;
+    }
+
+    inputFile >> vyska;
+    //printf("%d\n", vy);
+    inputFile >> sirka;
+    //printf("%d\n", si);
+
+
+    // Vytvori 2d pole
+    bool** pole = new bool*[vyska];
+    for (int i = 0; i < vyska; ++i) {
+        pole[i] = new bool[sirka];
+    }
+
+    for (int i = 0; i < vyska; ++i) {
+        for (int j = 0; j < sirka; ++j) {
+            char cellContent;
+            inputFile >> cellContent;
+            cellContent -= 48;
+            pole[i][j] = (cellContent == '1');
+            //printf("%d", cellContent);
+        }
+        printf("\n");
+    }
+
+    inputFile.close();
+    cout << "Mapa bola uspesne nacitana: " << "Mapa.txt" << endl;
+
+    return pole;
+}
 
 
