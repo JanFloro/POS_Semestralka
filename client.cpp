@@ -2,9 +2,30 @@
 
 using namespace std;
 
-int hodnota;
 
-void vykresli();
+
+void odstranenieDat (DATA * data) {
+    pthread_mutex_destroy(&data->mutexData);
+
+    for (int i = 0; i < data->vyska; ++i) {
+        for (int j = 0; j < data->sirka; ++j) {
+            // TODO ostranenie poli
+        }
+    }
+}
+
+void inicializaciaDat(DATA* data, int typMravcov, int pocetMravcov, int vyska, int sirka, bool **pole, int **poleMravcov, int pocetZivich) {
+    data->typMravcov = typMravcov;
+    data->pocetMravcov = pocetMravcov;
+    data->vyska = vyska;
+    data->sirka = sirka;
+    data->pole = pole;
+    data->poleMravcov = poleMravcov;
+    data->pocetZivich = pocetZivich;
+    pthread_mutex_init(&data->mutexData, NULL);
+    data->ukoncenie = false;
+    data->pauznutie= false;
+}
 
 int CitanieZoServera(char buffer[512], int n, int sockfd)
 {
@@ -29,8 +50,62 @@ int PosielanieNaServer(char buffer[256], int n, int sockfd)
         perror("Error writing to socket");
     }
     int cislo = atoi(buffer);
-    hodnota = cislo;
     return cislo;
+}
+
+void ulozenieMapyDoSuboru(bool** pole, int vyska, int sirka) {
+    ofstream outputFile("Mapa.txt");
+
+    if (!outputFile.is_open()) {
+        cerr << "Chyba otvorenia suboru: " << "Mapa.txt" << endl;
+        return;
+    }
+
+    outputFile << vyska << endl;
+    outputFile << sirka << endl;
+
+    for (int i = 0; i < vyska; ++i) {
+        for (int j = 0; j < sirka; ++j) {
+            outputFile << (pole[i][j] ? '1' : '0');
+        }
+        outputFile << endl;
+    }
+
+    outputFile.close();
+    cout << "Mapa bola ulozena " << "Mapa.txt" << endl;
+}
+
+bool** nacitanieMapyZoSuboru1(int& vyska, int& sirka) {
+    ifstream inputFile("Mapa.txt");
+
+    if (!inputFile.is_open()) {
+        cerr << "Neotvoril sa subor: " << "Mapa.txt" << endl;
+        return nullptr;
+    }
+
+    inputFile >> vyska;
+    //printf("%d\n", vy);
+    inputFile >> sirka;
+    //printf("%d\n", si);
+
+    // Vytvori 2d pole
+    bool** pole = new bool*[vyska];
+    for (int i = 0; i < vyska; ++i) {
+        pole[i] = new bool[sirka];
+    }
+
+    for (int i = 0; i < vyska; ++i) {
+        for (int j = 0; j < sirka; ++j) {
+            char cellContent;
+            inputFile >> cellContent;
+            cellContent == '1' ? pole[i][j] = true : pole[i][j] = false;
+        }
+    }
+
+    inputFile.close();
+    cout << "Mapa bola uspesne nacitana: " << "Mapa.txt" << endl;
+
+    return pole;
 }
 
 
@@ -39,7 +114,6 @@ int client(int argc, char *argv[])
     int sockfd, n;
     struct sockaddr_in serv_addr;
     struct hostent* server;
-    int kontrolaPredGenerovanim;
 
     char buffer[512];
 
@@ -343,50 +417,52 @@ int client(int argc, char *argv[])
 
     cout << "---------------------Simulacia sa pusta -----------------\n";
 
-    hra(&data);
+    //hra(&data);
+    pthread_create(&client, nullptr,hra,&data);
+    //pthread_join(client, NULL);
 
-    //pthread_create(&client,NULL,hra,&data);
+    while(!data.ukoncenie) {
+        int znak = getchar();
+        //------------------------------Pauzne simulaciu stlacenim a znaku
+        if (znak == 97) {
+            pthread_mutex_lock(&data.mutexData);
+            data.pauznutie = true;
+            printf("-----PAUZA-----\n");
+            printf("PRE POKRACOVANIE STLAC u \n");
+            printf("PRE KONIEC STLAC  e\n");
+            int key;
+            do {
+                key = getchar();
+                //------------------------------Pokracovanie stacenim u znaku
+                if (key == 117) {
+                    data.pauznutie = false;
+                    break;
+                }
+                if (key == 101) {
+                    printf("-----KONIEC-----\n");
+                    data.ukoncenie = true;
+                    break;
+                }
 
+            } while ( key != 117 && key != 101);
+            pthread_mutex_unlock(&data.mutexData);
 
-}
-
-
-//[i][0] = Pozicia Y
-//[i][1] = Pozicia X
-//[i][2] = Smer pohibu 0-3
-//[i][3] = 1;
-
-void inicializaciaDat(void* data, int typMravcov, int pocetMravcov, int vyska, int sirka, bool **pole, int **poleMravcov, int pocetZivich) {
-    DATA* d = (DATA*) data;
-    pthread_mutex_t mutex;
-
-    d->typMravcov = typMravcov;
-    d->pocetMravcov = pocetMravcov;
-    d->vyska = vyska;
-    d->sirka = sirka;
-    d->pole = pole;
-    d->poleMravcov = poleMravcov;
-    d->pocetZivich = pocetZivich;
-    pthread_mutex_init(&mutex, NULL);
-    d->mutexData = &mutex;
-    d->ukoncenie = false;
-    d->pauznutie= false;
-
-}
-
-void odstranenieDat (void * data) {
-    DATA* d = (DATA*) data;
-    pthread_mutex_destroy(d->mutexData);
-    // Odstranit pole a pole mravcov
-}
-
-void* hra(void* data) {
-    DATA* d = (DATA*) data;
-    while (true){
-        vykresli(d);
-        posunMravcov(d);
-        zabiMravca(d);
+        }
+        if (znak == 101) {
+            //----------------------------------------Ukoncenie e znakom
+            pthread_mutex_lock(&data.mutexData);
+            printf("-----KONIEC-----\n");
+            data.ukoncenie = true;
+            pthread_mutex_unlock(&data.mutexData);
+        }
     }
+
+    odstranenieDat(&data);
+
+    close(sockfd);
+
+    return 0;
+
 }
 
 void vykresli(void* data) {
@@ -411,7 +487,8 @@ void vykresli(void* data) {
         cout << '\n';
     }
     printf("------------------------\n");
-    sleep(2);
+    printf("PRE PAUZNUTIE STLAC a\n");
+    printf("PRE KONIEC STLAC  e\n");
 }
 
 void posunMravcov(void* data) {
@@ -489,59 +566,33 @@ void zabiMravca(void* data) {
     }
 }
 
-void ulozenieMapyDoSuboru(bool** pole, int vyska, int sirka) {
-    ofstream outputFile("Mapa.txt");
-
-    if (!outputFile.is_open()) {
-        cerr << "Chyba otvorenia suboru: " << "Mapa.txt" << endl;
-        return;
-    }
-
-    outputFile << vyska << endl;
-    outputFile << sirka << endl;
-
-    for (int i = 0; i < vyska; ++i) {
-        for (int j = 0; j < sirka; ++j) {
-            outputFile << (pole[i][j] ? '1' : '0');
+void* hra(void* data) {
+    DATA* d = (DATA*) data;
+    while (!d->ukoncenie){
+        pthread_mutex_lock(&d->mutexData);
+        if(d->ukoncenie) {
+            pthread_mutex_unlock(&d->mutexData);
+            break;
         }
-        outputFile << endl;
-    }
+        pthread_mutex_unlock(&d->mutexData);
 
-    outputFile.close();
-    cout << "Mapa bola ulozena " << "Mapa.txt" << endl;
+        while(true) {
+            pthread_mutex_lock(&d->mutexData);
+            if(d->pauznutie) {
+                pthread_mutex_unlock(&d->mutexData);
+                break;
+            }
+            pthread_mutex_unlock(&d->mutexData);
+
+            vykresli(d);
+            posunMravcov(d);
+            zabiMravca(d);
+            sleep(2);
+        }
+
+    }
 }
 
-bool** nacitanieMapyZoSuboru1(int& vyska, int& sirka) {
-    ifstream inputFile("Mapa.txt");
 
-    if (!inputFile.is_open()) {
-        cerr << "Neotvoril sa subor: " << "Mapa.txt" << endl;
-        return nullptr;
-    }
-
-    inputFile >> vyska;
-    //printf("%d\n", vy);
-    inputFile >> sirka;
-    //printf("%d\n", si);
-
-    // Vytvori 2d pole
-    bool** pole = new bool*[vyska];
-    for (int i = 0; i < vyska; ++i) {
-        pole[i] = new bool[sirka];
-    }
-
-    for (int i = 0; i < vyska; ++i) {
-        for (int j = 0; j < sirka; ++j) {
-            char cellContent;
-            inputFile >> cellContent;
-            cellContent == '1' ? pole[i][j] = true : pole[i][j] = false;
-        }
-    }
-
-    inputFile.close();
-    cout << "Mapa bola uspesne nacitana: " << "Mapa.txt" << endl;
-
-    return pole;
-}
 
 

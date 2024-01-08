@@ -27,15 +27,15 @@ typedef struct data {
     int pocetZivich;
     bool ukoncenie;
     bool pauznutie;
-    pthread_mutex_t* mutexData;
+    pthread_mutex_t mutexData;
 } DATA;
 
 int client(int argc, char *argv[]);
 int CitanieZoServera(char buffer[512],int n, int sockfd);
 int PosielanieNaServer(char buffer[256], int n, int sockfd);
 
-void inicializaciaDat(void* d, int typMravcov, int pocetMravcov, int vyska, int sirka, bool **pole, int **poleMravcov, int pocetZivich);
-void odstranenieDat (void* d);
+void inicializaciaDat(DATA* d, int typMravcov, int pocetMravcov, int vyska, int sirka, bool **pole, int **poleMravcov, int pocetZivich);
+void odstranenieDat (DATA* d);
 
 void* hra (void *d);
 
