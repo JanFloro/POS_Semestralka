@@ -4,15 +4,7 @@ using namespace std;
 
 
 
-void odstranenieDat (DATA * data) {
-    pthread_mutex_destroy(&data->mutexData);
 
-    for (int i = 0; i < data->vyska; ++i) {
-        for (int j = 0; j < data->sirka; ++j) {
-            // TODO ostranenie poli
-        }
-    }
-}
 
 void inicializaciaDat(DATA* data, int typMravcov, int pocetMravcov, int vyska, int sirka, bool **pole, int **poleMravcov, int pocetZivich) {
     data->typMravcov = typMravcov;
@@ -27,30 +19,35 @@ void inicializaciaDat(DATA* data, int typMravcov, int pocetMravcov, int vyska, i
     data->pauznutie= false;
 }
 
-int CitanieZoServera(char buffer[512], int n, int sockfd)
+void odstranenieDat (DATA * data) {
+    pthread_mutex_destroy(&data->mutexData);
+
+    for (int i = 0; i < data->vyska; ++i) {
+        for (int j = 0; j < data->sirka; ++j) {
+            // TODO ostranenie poli
+        }
+    }
+}
+
+void CitanieZoServera(char buffer[512], int sockfd)
 {
     bzero(buffer,512);
-    n = read(sockfd, buffer, 511);
+    int n = read(sockfd, buffer, 511);
     if (n < 0)
     {
         perror("Error reading from socket");
     }
-    printf("%s",buffer);
-    int cislo = atoi(buffer);
-    return cislo;
 }
 
-int PosielanieNaServer(char buffer[256], int n, int sockfd)
+void PosielanieNaServer(char buffer[512], int sockfd)
 {
-    bzero(buffer,256);
-    fgets(buffer, 255, stdin);
-    n = write(sockfd, buffer, strlen(buffer));
+    bzero(buffer,512);
+    fgets(buffer, 512, stdin);
+    int n = write(sockfd, buffer, strlen(buffer));
     if (n < 0)
     {
         perror("Error writing to socket");
     }
-    int cislo = atoi(buffer);
-    return cislo;
 }
 
 void ulozenieMapyDoSuboru(bool** pole, int vyska, int sirka) {
@@ -180,19 +177,42 @@ int client(int argc, char *argv[])
     } while (nacitanie < 1 || nacitanie > 3);
 
 
+
     if (nacitanie == 1 ) {
         // -----------------------------------------TODO nacitanie zo servera
+        sprintf(buffer, "%d", nacitanie);
+        cout << "Client sending message: " << buffer << endl;
+        PosielanieNaServer(buffer, sockfd);
+
+        //PosielanieNaServer("1",sockfd);
 
 
+        CitanieZoServera(buffer, sockfd);
+        vyska = atoi(buffer);
+        PosielanieNaServer(buffer,sockfd);
 
+        CitanieZoServera(buffer, sockfd);
+        sirka = atoi(buffer);
+        PosielanieNaServer(buffer,sockfd);
 
-
-
-
+        for (int i = 0; i < vyska; ++i) {
+            for (int j = 0; j < sirka; ++j) {
+                int hodnota;
+                CitanieZoServera(buffer, sockfd);
+                hodnota = atoi(buffer);
+                hodnota == 1 ? pole[i][j] = true : pole[i][j] = false;
+                /*
+                if (hodnota == 1) {
+                    pole[i][j] = true;
+                } else {
+                    pole[i][j] = false;
+                }*/
+                PosielanieNaServer(buffer,sockfd);
+            }
+        }
 
 
     } else if (nacitanie == 2 ) {
-        // -----------------------------------------TODO nacitanie zo suboru
         pole = nacitanieMapyZoSuboru1(vyska, sirka);
         //printf("%d\n", vyska);
         //printf("%d\n", sirka);
@@ -231,7 +251,7 @@ int client(int argc, char *argv[])
         //--------------------------------Inicializacia bool pola
         pole = new bool*[vyska];
         for (int i = 0; i < vyska; ++i) {
-            pole[i] = new bool[1];
+            pole[i] = new bool[sirka];
         }
         //--------------------------------Nastavenie pola na false
         for (int i = 0; i < vyska; ++i) {
@@ -310,7 +330,7 @@ int client(int argc, char *argv[])
 
         int ulozenie;
         do {
-            cout << "Chces ulozit mapu : \n  1,Server\n  2,Lokalny subor\n  3,NIE\n";
+            cout << "Chces ulozit mapu : \n  1,NIE\n  2,Lokalny subor\n  3,Server\n";
             if (!(cin >> ulozenie)) {
                 cout << "Nespravny input!" << endl;
                 cin.clear();
@@ -319,10 +339,36 @@ int client(int argc, char *argv[])
         } while (ulozenie < 1 || ulozenie > 3);
 
 
-        if (ulozenie == 1) {
-            //--------------------TODO ulozenie mapy na server
-            CitanieZoServera(buffer,n,sockfd);
-            PosielanieNaServer("3",n,sockfd);
+        if (ulozenie == 3) {
+            sprintf(buffer,"%d", ulozenie);
+            PosielanieNaServer(buffer,sockfd);
+
+            //--------------------TODO ulozenie mapy na server  OTESTOVAT
+            sprintf(buffer,"%d",vyska);
+            PosielanieNaServer(buffer, sockfd);
+            CitanieZoServera(buffer,sockfd);
+
+            sprintf(buffer,"%d",sirka);
+            PosielanieNaServer(buffer, sockfd);
+            CitanieZoServera(buffer,sockfd);
+
+            for (int i = 0; i < vyska; ++i) {
+                for (int j = 0; j < sirka; ++j) {
+                    if (pole[i][j]) {
+                        int hodnota = 1;
+                        sprintf(buffer,"%d", hodnota);
+                        PosielanieNaServer(buffer,sockfd);
+                        CitanieZoServera(buffer,sockfd);
+                    } else {
+                        int hodnota = 0;
+                        sprintf(buffer,"%d", hodnota);
+                        PosielanieNaServer(buffer,sockfd);
+                        CitanieZoServera(buffer,sockfd);
+                    }
+                }
+            }
+
+
         }
         if (ulozenie == 2) {
             ulozenieMapyDoSuboru(pole,vyska,sirka);

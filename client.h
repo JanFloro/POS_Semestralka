@@ -31,8 +31,8 @@ typedef struct data {
 } DATA;
 
 int client(int argc, char *argv[]);
-int CitanieZoServera(char buffer[512],int n, int sockfd);
-int PosielanieNaServer(char buffer[256], int n, int sockfd);
+void CitanieZoServera(char buffer[512], int sockfd);
+void PosielanieNaServer(char buffer[512], int sockfd);
 
 void inicializaciaDat(DATA* d, int typMravcov, int pocetMravcov, int vyska, int sirka, bool **pole, int **poleMravcov, int pocetZivich);
 void odstranenieDat (DATA* d);
